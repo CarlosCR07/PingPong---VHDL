@@ -1,0 +1,11 @@
+
+State Machine - |pong|ballst
+Name ballst.pd ballst.pi ballst.bd ballst.ei ballst.si ballst.sd ballst.bi ballst.ed 
+ballst.ed 0 0 0 0 0 0 0 0 
+ballst.bi 0 0 0 0 0 0 1 1 
+ballst.sd 0 0 0 0 0 1 0 1 
+ballst.si 0 0 0 0 1 0 0 1 
+ballst.ei 0 0 0 1 0 0 0 1 
+ballst.bd 0 0 1 0 0 0 0 1 
+ballst.pi 0 1 0 0 0 0 0 1 
+ballst.pd 1 0 0 0 0 0 0 1 

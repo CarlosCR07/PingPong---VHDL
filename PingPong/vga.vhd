@@ -1,0 +1,98 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity vga is
+generic( constant h_pulse: integer := 96;
+			constant h_bp: integer := 48;
+			constant h_pixels: integer := 640;
+			constant h_fp: integer := 16;
+			constant v_pulse: integer := 2;
+			constant v_bp: integer := 33;
+			constant v_pixels: integer := 480;
+			constant v_fp: integer := 10
+);
+
+port( reloj_pixel: in std_logic;
+		display_ena: out std_logic;
+		column : out integer range 0 to 96 + 48 + 640 + 16 - 1;
+		row : out integer range 0 to 2 + 33 + 480 + 10 - 1;
+		h_sync: out std_logic;
+		v_sync: out std_logic
+);
+end vga;
+
+
+architecture behavioral of vga is
+	constant h_period: integer := h_pulse + h_bp + h_pixels + h_fp;
+	constant v_period: integer := v_pulse + v_bp + v_pixels + v_fp;
+	signal h_count: integer range 0 to h_period - 1 := 0;
+	signal v_count: integer range 0 to v_period - 1 := 0;
+begin
+
+
+contadores: process(reloj_pixel)
+begin
+	if rising_edge(reloj_pixel) then
+		if h_count <(h_period-1) then
+			h_count <= h_count + 1;
+		else
+			h_count <= 0;
+			if v_count < (v_period - 1) then
+				v_count <= v_count+ 1;
+			else
+				v_count<= 0;
+			end if;
+		end if;
+	end if;
+end process contadores;
+
+
+serial_hsync: process(reloj_pixel)
+begin
+	if rising_edge(reloj_pixel) then
+		if h_count > (h_pixels + h_fp) and h_count < (h_pixels + h_fp + h_pulse) then
+			h_sync <= '0';
+		else
+			h_sync <= '1';
+		end if;
+	end if;
+end process serial_hsync;
+
+
+serial_vsync: process(reloj_pixel)
+begin
+	if rising_edge(reloj_pixel) then
+		if v_count > (v_pixels + v_fp) and v_count < (v_pixels + v_fp + v_pulse) then
+			v_sync <= '0';
+		else
+			v_sync <= '1';
+		end if;
+	end if;
+end process serial_vsync;
+
+
+coords_pixel: process(reloj_pixel)
+begin
+	if rising_edge(reloj_pixel) then
+		if(h_count < h_pixels) then
+			column <= h_count;
+		end if;
+		if(v_count < v_pixels) then
+			row <= v_count;
+		end if;
+	end if;
+end process coords_pixel;
+
+display_enable: process(reloj_pixel)
+begin
+	if rising_edge(reloj_pixel) then
+		if(h_count < h_pixels and v_count < v_pixels) then
+			display_ena <= '1';
+		else
+			display_ena <= '0';
+		end if;
+	end if;
+end process display_enable;
+
+end architecture behavioral;
